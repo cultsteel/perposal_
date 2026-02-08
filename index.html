@@ -9,41 +9,27 @@
 
 <style>
 body{margin:0;font-family:'Dancing Script',cursive;background:black;color:white;overflow:hidden;text-align:center}
-
-/* LOCK SCREEN */
 #lockScreen{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
 input{padding:12px;border-radius:20px;border:none;margin-top:10px;font-size:18px}
 button{padding:12px 30px;border-radius:30px;border:none;margin-top:15px;font-size:18px;cursor:pointer}
 #mainSite{display:none}
-
-/* TYPING */
 #typing{font-size:2.8em;margin-top:28vh}
 
-/* FULLSCREEN SLIDESHOW */
-.slideshow{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;overflow:hidden}
-.slideshow img{
-position:absolute;
-top:0;
-left:0;
-width:100vw;
-height:100vh;
-object-fit:cover;
-object-position:center;
-opacity:0;
-transition:opacity 2s ease-in-out;
-}
+/* SLIDESHOW */
+.slideshow{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1}
+.slideshow img{position:absolute;width:100vw;height:100vh;object-fit:cover;object-position:center;opacity:0;transition:opacity 2s}
 
 /* PROPOSAL */
 #proposalBox{position:absolute;bottom:18%;width:100%}
 .yes{background:#ff4d6d;color:white}
 .no{background:white;color:#ff4d6d}
 
-/* LOVE LETTER */
-#surprise{display:none;height:100vh;justify-content:center;align-items:center;flex-direction:column;padding:20px}
-
 /* POPUPS */
 .popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999}
 .popup img{max-width:90vw;border-radius:20px;box-shadow:0 0 30px rgba(255,0,100,0.6)}
+
+/* LOVE LETTER */
+#surprise{display:none;height:100vh;justify-content:center;align-items:center;flex-direction:column;padding:20px}
 
 /* FINAL SCREEN */
 #finalScreen{
@@ -56,7 +42,6 @@ justify-content:center;
 align-items:center;
 flex-direction:column;
 color:white;
-text-align:center;
 }
 
 canvas{position:fixed;top:0;left:0;pointer-events:none}
@@ -104,26 +89,26 @@ canvas{position:fixed;top:0;left:0;pointer-events:none}
 Hey sorry for today 😔 <br><br>
 Me hang padlo hoto full guddi ne jeva mala bolle propose kar mhnun… So me atta kartoy. 😘 <br><br>
 From strangers → classmates → copy mates 🤭 → friends → besties → now in a relationship…  
-Unexpected, but the best thing that happened to me. ❤️ <br><br>
-Now the only thing that matters is keeping you happy, because your happiness makes me happiest. 😁 <br><br>
+Unexpected, but the best thing that happened to me ❤️ <br><br>
+Now the only thing that matters is keeping you happy, because your happiness makes me happiest 😁 <br><br>
 So just be happy… always… with me ❤️
 </p>
 <h1>I Love You Forever 💖</h1>
 </div>
 
-<!-- FINAL ETERNAL SCREEN -->
+<!-- FINAL SCREEN -->
 <div id="finalScreen">
 <h1 style="font-size:3em;text-shadow:0 0 20px rgba(0,0,0,0.8)">Bhakti ❤️ Omkar</h1>
 <h2 style="text-shadow:0 0 20px rgba(0,0,0,0.8)">Forever. Always. Eternal Love.</h2>
 </div>
 
-<!-- CANVAS -->
+<!-- CANVASES -->
 <canvas id="fireworks"></canvas>
-<canvas id="heartCanvas"></canvas>
+<canvas id="connectCanvas"></canvas>
 
 <script>
 
-/* PASSWORD = 3124 */
+/* PASSWORD */
 function unlock(){
 if(document.getElementById("pass").value==="3124"){
 document.getElementById("lockScreen").style.display="none";
@@ -146,7 +131,7 @@ setTimeout(type,120);
 type();
 }
 
-/* SMOOTH SLIDESHOW */
+/* SLIDESHOW */
 const slides=document.querySelectorAll(".slideshow img");
 let s=0;
 function startSlideshow(){
@@ -169,7 +154,7 @@ btn.style.left=Math.random()*80+"%";
 function sayYes(){
 document.getElementById("proposalBox").style.display="none";
 startFireworks();
-startHeartConnection();
+startConnectHeart();
 setTimeout(()=>{document.getElementById("popup1").style.display="block"},3200);
 setTimeout(()=>{
 document.getElementById("popup1").style.display="none";
@@ -180,59 +165,67 @@ setTimeout(()=>{document.getElementById("finalScreen").style.display="flex"},115
 }
 
 /* FIREWORKS */
-const canvas=document.getElementById("fireworks");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
+const fw=document.getElementById("fireworks");
+const fctx=fw.getContext("2d");
+fw.width=window.innerWidth; fw.height=window.innerHeight;
 function startFireworks(){
 setInterval(()=>{
-const x=Math.random()*canvas.width;
-const y=Math.random()*canvas.height/2;
+const x=Math.random()*fw.width, y=Math.random()*fw.height/2;
 for(let i=0;i<30;i++){
-ctx.beginPath();
-ctx.arc(x+Math.random()*60-30,y+Math.random()*60-30,2,0,Math.PI*2);
-ctx.fillStyle="hsl("+Math.random()*360+",100%,60%)";
-ctx.fill();
+fctx.beginPath();
+fctx.arc(x+Math.random()*60-30,y+Math.random()*60-30,2,0,Math.PI*2);
+fctx.fillStyle="hsl("+Math.random()*360+",100%,60%)";
+fctx.fill();
 }
 },300);
 }
 
-/* HEART CONNECTION */
-const heartCanvas=document.getElementById("heartCanvas");
-const hctx=heartCanvas.getContext("2d");
-heartCanvas.width=window.innerWidth;
-heartCanvas.height=window.innerHeight;
+/* CONNECT BOARD → HEART */
+const cc=document.getElementById("connectCanvas");
+const cctx=cc.getContext("2d");
+cc.width=window.innerWidth; cc.height=window.innerHeight;
 
-function startHeartConnection(){
-const nodes=[
-{x:heartCanvas.width/2,y:heartCanvas.height/2-120},
-{x:heartCanvas.width/2-120,y:heartCanvas.height/2-20},
-{x:heartCanvas.width/2-80,y:heartCanvas.height/2+80},
-{x:heartCanvas.width/2,y:heartCanvas.height/2+140},
-{x:heartCanvas.width/2+80,y:heartCanvas.height/2+80},
-{x:heartCanvas.width/2+120,y:heartCanvas.height/2-20}
-];
+function startConnectHeart(){
+let cols=7, rows=6;
+let size=Math.min(cc.width,cc.height)/10;
+let sx=(cc.width-cols*size)/2;
+let sy=(cc.height-rows*size)/2;
 
-let step=0;
+/* board */
+for(let r=0;r<rows;r++){
+for(let c=0;c<cols;c++){
+cctx.beginPath();
+cctx.arc(sx+c*size+size/2, sy+r*size+size/2, size/2.6, 0, Math.PI*2);
+cctx.fillStyle="rgba(255,255,255,0.12)";
+cctx.fill();
+}
+}
+
+/* heart discs */
+const heart=[[2,1],[3,1],[4,1],[1,2],[5,2],[1,3],[5,3],[2,4],[3,4],[4,4],[3,5]];
+let i=0;
+
 const draw=setInterval(()=>{
-if(step>=nodes.length){clearInterval(draw);return;}
-
-hctx.beginPath();
-hctx.arc(nodes[step].x,nodes[step].y,6,0,Math.PI*2);
-hctx.fillStyle="#ff4d6d";
-hctx.fill();
-
-if(step>0){
-hctx.beginPath();
-hctx.moveTo(nodes[step-1].x,nodes[step-1].y);
-hctx.lineTo(nodes[step].x,nodes[step].y);
-hctx.strokeStyle="#ff4d6d";
-hctx.lineWidth=3;
-hctx.stroke();
+if(i>=heart.length){clearInterval(draw);drawGlowHeart();return;}
+let c=heart[i][0], r=heart[i][1];
+cctx.beginPath();
+cctx.arc(sx+c*size+size/2, sy+r*size+size/2, size/2.6, 0, Math.PI*2);
+cctx.fillStyle="#ff2d55";
+cctx.fill();
+i++;
+},250);
 }
-step++;
-},300);
+
+function drawGlowHeart(){
+let x=cc.width/2, y=cc.height/2;
+cctx.shadowBlur=30; cctx.shadowColor="red"; cctx.fillStyle="red";
+cctx.beginPath();
+cctx.moveTo(x,y);
+cctx.bezierCurveTo(x,y-40,x-60,y-40,x-60,y);
+cctx.bezierCurveTo(x-60,y+40,x,y+60,x,y+80);
+cctx.bezierCurveTo(x,y+60,x+60,y+40,x+60,y);
+cctx.bezierCurveTo(x+60,y-40,x,y-40,x,y);
+cctx.fill();
 }
 </script>
 
