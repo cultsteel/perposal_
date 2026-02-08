@@ -1,756 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Be Mine?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bhakti ❤️ Omkar</title>
 
-        body {
-            font-family: 'Dancing Script', cursive;
-            overflow: hidden;
-            height: 100vh;
-            background: #000;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 
-        #lockScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+<style>
+body{margin:0;font-family:'Dancing Script',cursive;background:black;color:white;overflow:hidden;text-align:center}
+#lockScreen{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+input{padding:12px;border-radius:20px;border:none;margin-top:10px;font-size:18px}
+button{padding:12px 30px;border-radius:30px;border:none;margin-top:15px;font-size:18px;cursor:pointer}
+#mainSite{display:none}
+#typing{font-size:2.8em;margin-top:28vh}
 
-        #passwordInput {
-            font-family: inherit;
-            font-size: clamp(24px, 5vw, 48px);
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 2px solid #ff4d88;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            width: 80%;
-            max-width: 400px;
-        }
+/* SLIDESHOW */
+.slideshow{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1}
+.slideshow img{position:absolute;width:100vw;height:100vh;object-fit:cover;object-position:center;opacity:0;transition:opacity 2s}
 
-        #unlockBtn {
-            font-family: inherit;
-            font-size: clamp(20px, 4vw, 36px);
-            padding: 15px 40px;
-            background: linear-gradient(45deg, #ff4d88, #ff69b4);
-            border: none;
-            border-radius: 50px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(255, 77, 136, 0.4);
-        }
+/* PROPOSAL */
+#proposalBox{position:absolute;bottom:18%;width:100%}
+.yes{background:#ff4d6d;color:white}
+.no{background:white;color:#ff4d6d}
 
-        #unlockBtn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(255, 77, 136, 0.6);
-        }
+/* POPUPS */
+.popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999}
+.popup img{max-width:90vw;border-radius:20px;box-shadow:0 0 30px rgba(255,0,100,0.6)}
 
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 1s ease;
-            z-index: 10;
-        }
+/* LOVE LETTER */
+#surprise{display:none;height:100vh;justify-content:center;align-items:center;flex-direction:column;padding:20px}
 
-        .screen.active {
-            opacity: 1;
-            visibility: visible;
-        }
+/* FINAL SCREEN */
+#finalScreen{
+display:none;
+position:fixed;
+top:0;left:0;width:100%;height:100%;
+background:url('final.jpg') center/cover no-repeat;
+z-index:2000;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+color:white;
+}
 
-        #mainScreen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-        }
-
-        #bgSlideshow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            opacity: 0;
-            transition: opacity 1.5s ease;
-        }
-
-        .bg-image.active {
-            opacity: 1;
-        }
-
-        .typing-text {
-            font-size: clamp(36px, 10vw, 120px);
-            text-align: center;
-            margin-bottom: 60px;
-            color: #ff69b4;
-            text-shadow: 0 0 30px rgba(255, 105, 180, 0.8);
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid #ff69b4;
-            z-index: 25;
-        }
-
-        .proposal-box {
-            background: rgba(0, 0, 0, 0.3) !important;
-            backdrop-filter: blur(30px);
-            padding: 60px 40px;
-            border-radius: 30px;
-            text-align: center;
-            border: 2px solid rgba(255, 105, 180, 0.4);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            z-index: 30;
-            transition: all 0.5s ease;
-        }
-
-        .proposal-question {
-            font-size: clamp(28px, 6vw, 64px);
-            margin-bottom: 50px;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-        }
-
-        .proposal-btns {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .proposal-btn {
-            font-family: inherit;
-            font-size: clamp(24px, 5vw, 48px);
-            padding: 20px 50px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        #yesBtn {
-            background: linear-gradient(45deg, #ff4d88, #ff69b4);
-            color: #fff;
-        }
-
-        #yesBtn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(255, 77, 136, 0.6);
-        }
-
-        #noBtn {
-            background: transparent;
-            color: #fff;
-            border: 2px solid #fff;
-        }
-
-        #noBtn:hover {
-            transform: translate(calc(50vw * (var(--move-x, 0) - 0.5)), calc(50vh * (var(--move-y, 0) - 0.5))) !important;
-        }
-
-        #canvasContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        #fireworksCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            display: none;
-        }
-
-        #connectCanvas {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80vmin;
-            height: 70vmin;
-            max-width: 600px;
-            max-height: 500px;
-            display: none;
-        }
-
-        #heartCanvas {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            display: none;
-        }
-
-        #popupImages {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 60;
-        }
-
-        .popup-img {
-            max-width: 90vw;
-            max-height: 90vh;
-            border-radius: 20px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 1s ease;
-        }
-
-        .popup-img.active {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        #loveLetter {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 60px 40px;
-            border-radius: 30px;
-            text-align: center;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 105, 180, 0.3);
-        }
-
-        #loveLetter h1 {
-            font-size: clamp(36px, 8vw, 72px);
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #ff69b4, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        #loveLetter p {
-            font-size: clamp(20px, 4vw, 32px);
-            line-height: 1.6;
-            margin-bottom: 25px;
-            color: #fff;
-        }
-
-        #finalScreen {
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        #finalText {
-            font-size: clamp(48px, 12vw, 120px);
-            background: linear-gradient(45deg, #ff69b4, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 50px rgba(255, 105, 180, 0.8);
-            margin-bottom: 20px;
-        }
-
-        #finalSubtext {
-            font-size: clamp(28px, 6vw, 56px);
-        }
-
-        @media (max-width: 768px) {
-            .proposal-btns {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .proposal-btn {
-                width: 250px;
-            }
-        }
-    </style>
+canvas{position:fixed;top:0;left:0;pointer-events:none}
+</style>
 </head>
+
 <body>
-    <!-- Lock Screen -->
-    <div id="lockScreen">
-        <input type="password" id="passwordInput" maxlength="4" placeholder="Enter password...">
-        <button id="unlockBtn">Open ❤️</button>
-    </div>
 
-    <!-- Main Screens Container -->
-    <div id="mainContainer">
-        <!-- Main Screen -->
-        <div id="mainScreen" class="screen active">
-            <div id="bgSlideshow">
-                <img src="photo1.jpg" class="bg-image active" alt="Photo 1">
-                <img src="photo2.jpg" class="bg-image" alt="Photo 2">
-                <img src="photo3.jpg" class="bg-image" alt="Photo 3">
-                <img src="photo4.jpg" class="bg-image" alt="Photo 4">
-            </div>
-            <div id="typingText" class="typing-text"></div>
-            <div id="proposalBox" class="proposal-box">
-                <div id="proposalQuestion" class="proposal-question">
-                    Will you be mine forever? 💍
-                </div>
-                <div class="proposal-btns">
-                    <button id="yesBtn" class="proposal-btn">YES ❤️</button>
-                    <button id="noBtn" class="proposal-btn">NO</button>
-                </div>
-            </div>
-        </div>
+<!-- PASSWORD -->
+<div id="lockScreen">
+<h2>Enter Secret Code ❤️</h2>
+<input type="password" id="pass">
+<button onclick="unlock()">Open</button>
+<p>(Hint: Special date)</p>
+</div>
 
-        <!-- Popup Images -->
-        <div id="popupScreen" class="screen">
-            <div id="popupImages">
-                <img id="popup1" src="popup1.jpg" class="popup-img" alt="Popup 1">
-                <img id="popup2" src="popup2.jpg" class="popup-img" alt="Popup 2">
-            </div>
-        </div>
+<!-- MAIN -->
+<div id="mainSite">
 
-        <!-- Love Letter Screen -->
-        <div id="loveLetterScreen" class="screen">
-            <div id="loveLetter">
-                <h1>Bhakti ❤️</h1>
-                <p>Hey sorry for today 😔</p>
-                <p>Me hang padlo hoto full guddi ne jeva mala bolle propose kar mhnun…</p>
-                <p>So me atta kartoy. 😘</p>
-                <p>From strangers → classmates → copy mates → friends → besties → now in a relationship…</p>
-                <p>Unexpected, but the best thing that happened to me. ❤️</p>
-                <p>Now the only thing that matters is keeping you happy, because your happiness makes me happiest. 😁</p>
-                <p>So just be happy… always… with me ❤️</p>
-                <p><strong>I Love You Forever 💖</strong></p>
-            </div>
-        </div>
+<div class="slideshow">
+<img src="photo1.jpg">
+<img src="photo2.jpg">
+<img src="photo3.jpg">
+<img src="photo4.jpg">
+</div>
 
-        <!-- Final Screen -->
-        <div id="finalScreen" class="screen">
-            <div id="finalText">Bhakti ❤️ Omkar</div>
-            <div id="finalSubtext">Forever. Always. Eternal Love.</div>
-        </div>
-    </div>
+<h1 id="typing"></h1>
 
-    <!-- Canvas Container for Animations -->
-    <div id="canvasContainer">
-        <canvas id="fireworksCanvas"></canvas>
-        <canvas id="connectCanvas"></canvas>
-        <canvas id="heartCanvas"></canvas>
-    </div>
+<div id="proposalBox">
+<h2>Will you be mine forever? 💍</h2>
+<button class="yes" onclick="sayYes()">YES ❤️</button>
+<button class="no" onmouseover="moveNo(this)">NO</button>
+</div>
 
-    <script>
-        // Global state
-        let slideshowInterval;
-        let fireworksRaf;
-        let connectInterval;
-        let heartRaf;
-        let isSequenceRunning = false;
+</div>
 
-        // DOM Elements
-        const lockScreen = document.getElementById('lockScreen');
-        const mainContainer = document.getElementById('mainContainer');
-        const mainScreen = document.getElementById('mainScreen');
-        const proposalBox = document.getElementById('proposalBox');
-        const yesBtn = document.getElementById('yesBtn');
-        const noBtn = document.getElementById('noBtn');
-        const passwordInput = document.getElementById('passwordInput');
-        const unlockBtn = document.getElementById('unlockBtn');
-        const typingText = document.getElementById('typingText');
-        const bgImages = document.querySelectorAll('.bg-image');
-        const fireworksCanvas = document.getElementById('fireworksCanvas');
-        const connectCanvas = document.getElementById('connectCanvas');
-        const heartCanvas = document.getElementById('heartCanvas');
-        const popupScreen = document.getElementById('popupScreen');
-        const popup1 = document.getElementById('popup1');
-        const popup2 = document.getElementById('popup2');
-        const loveLetterScreen = document.getElementById('loveLetterScreen');
-        const finalScreen = document.getElementById('finalScreen');
+<!-- POPUPS -->
+<div id="popup1" class="popup"><img src="popup1.jpg"></div>
+<div id="popup2" class="popup"><img src="popup2.jpg"></div>
 
-        // Lock screen functionality
-        unlockBtn.addEventListener('click', unlockApp);
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') unlockApp();
-        });
+<!-- LOVE LETTER -->
+<div id="surprise">
+<h1>Bhakti ❤️</h1>
+<p style="max-width:700px;font-size:1.35em;line-height:1.7">
+Hey sorry for today 😔 <br><br>
+Me hang padlo hoto full guddi ne jeva mala bolle propose kar mhnun… So me atta kartoy. 😘 <br><br>
+From strangers → classmates → copy mates 🤭 → friends → besties → now in a relationship…  
+Unexpected, but the best thing that happened to me ❤️ <br><br>
+Now the only thing that matters is keeping you happy, because your happiness makes me happiest 😁 <br><br>
+So just be happy… always… with me ❤️
+</p>
+<h1>I Love You Forever 💖</h1>
+</div>
 
-        function unlockApp() {
-            if (passwordInput.value === '3124') {
-                lockScreen.style.display = 'none';
-                mainContainer.style.display = 'block';
-                initMainScreen();
-            } else {
-                alert('Wrong password ❤️');
-                passwordInput.value = '';
-            }
-        }
+<!-- FINAL SCREEN -->
+<div id="finalScreen">
+<h1 style="font-size:3em;text-shadow:0 0 20px rgba(0,0,0,0.8)">Bhakti ❤️ Omkar</h1>
+<h2 style="text-shadow:0 0 20px rgba(0,0,0,0.8)">Forever. Always. Eternal Love.</h2>
+</div>
 
-        // Initialize main screen
-        function initMainScreen() {
-            typeWriter('Bhakti ❤️', typingText, 120);
-            startSlideshow();
-        }
+<!-- FIREWORKS -->
+<canvas id="fireworks"></canvas>
 
-        // Typing animation
-        function typeWriter(text, element, speed) {
-            let i = 0;
-            element.innerHTML = '';
-            const timer = setInterval(() => {
-                element.innerHTML += text.charAt(i);
-                i++;
-                if (i >= text.length) {
-                    clearInterval(timer);
-                    element.style.borderRight = 'none';
-                }
-            }, speed);
-        }
+<script>
 
-        // Background slideshow
-        function startSlideshow() {
-            let slideshowIndex = 0;
-            slideshowInterval = setInterval(() => {
-                bgImages[slideshowIndex].classList.remove('active');
-                slideshowIndex = (slideshowIndex + 1) % bgImages.length;
-                bgImages[slideshowIndex].classList.add('active');
-            }, 3500);
-        }
+/* PASSWORD */
+function unlock(){
+if(document.getElementById("pass").value==="3124"){
+document.getElementById("lockScreen").style.display="none";
+document.getElementById("mainSite").style.display="block";
+startTyping();
+startSlideshow();
+}else alert("Wrong password ❤️");
+}
 
-        // NO button playful movement
-        let moveCounter = 0;
-        noBtn.addEventListener('mouseenter', () => {
-            moveCounter++;
-            const x = (Math.sin(moveCounter * 0.3) + 1) / 2;
-            const y = (Math.cos(moveCounter * 0.5) + 1) / 2;
-            noBtn.style.setProperty('--move-x', x);
-            noBtn.style.setProperty('--move-y', y);
-        });
+/* TYPING */
+const text="Bhakti ❤️";
+let i=0;
+function startTyping(){
+function type(){
+if(i<text.length){
+document.getElementById("typing").innerHTML+=text.charAt(i);
+i++;
+setTimeout(type,120);
+}}
+type();
+}
 
-        // YES button - start cinematic sequence
-        yesBtn.addEventListener('click', startCinematicSequence);
+/* SLIDESHOW */
+const slides=document.querySelectorAll(".slideshow img");
+let s=0;
+function startSlideshow(){
+slides[0].style.opacity=1;
+setInterval(()=>{
+slides[s].style.opacity=0;
+s=(s+1)%slides.length;
+slides[s].style.opacity=1;
+},3500);
+}
 
-        function startCinematicSequence() {
-            if (isSequenceRunning) return;
-            isSequenceRunning = true;
+/* NO BUTTON */
+function moveNo(btn){
+btn.style.position="absolute";
+btn.style.top=Math.random()*80+"%";
+btn.style.left=Math.random()*80+"%";
+}
 
-            console.log('Starting cinematic sequence...');
+/* YES CLICK */
+function sayYes(){
+document.getElementById("proposalBox").style.display="none";
+startFireworks();
 
-            // Hide proposal box
-            proposalBox.style.transition = 'opacity 0.5s ease';
-            proposalBox.style.opacity = '0';
-            
-            setTimeout(() => {
-                proposalBox.style.display = 'none';
-                typingText.style.display = 'none';
-                
-                // Start fireworks
-                startFireworks();
-            }, 500);
+setTimeout(()=>{document.getElementById("popup1").style.display="block"},2000);
+setTimeout(()=>{
+document.getElementById("popup1").style.display="none";
+document.getElementById("popup2").style.display="block";
+},4000);
 
-            // Timeline
-            setTimeout(() => startConnectHeart(), 1500);
-            setTimeout(() => startGlowingHeart(), 4500);
-            setTimeout(() => showPopup1(), 3200);
-            setTimeout(() => showPopup2(), 5200);
-            setTimeout(() => showLoveLetter(), 7200);
-            setTimeout(() => showFinalScreen(), 11500);
-        }
+setTimeout(()=>{document.getElementById("surprise").style.display="flex"},6000);
+setTimeout(()=>{document.getElementById("finalScreen").style.display="flex"},10000);
+}
 
-        // Fireworks
-        function startFireworks() {
-            const ctx = fireworksCanvas.getContext('2d');
-            fireworksCanvas.width = window.innerWidth;
-            fireworksCanvas.height = window.innerHeight * 0.5;
-            fireworksCanvas.style.display = 'block';
+/* FIREWORKS */
+const fw=document.getElementById("fireworks");
+const ctx=fw.getContext("2d");
+fw.width=window.innerWidth; fw.height=window.innerHeight;
 
-            const fireworks = [];
+function startFireworks(){
+setInterval(()=>{
+const x=Math.random()*fw.width;
+const y=Math.random()*fw.height/2;
+for(let i=0;i<30;i++){
+ctx.beginPath();
+ctx.arc(x+Math.random()*60-30,y+Math.random()*60-30,2,0,Math.PI*2);
+ctx.fillStyle="hsl("+Math.random()*360+",100%,60%)";
+ctx.fill();
+}
+},300);
+}
 
-            function animate() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+</script>
 
-                if (Math.random() < 0.3) {
-                    fireworks.push(new Firework(ctx.canvas.width * Math.random(), 0));
-                }
-
-                for (let i = fireworks.length - 1; i >= 0; i--) {
-                    const firework = fireworks[i];
-                    firework.update();
-                    firework.draw(ctx);
-                    if (firework.particles.length === 0 && firework.exploded) {
-                        fireworks.splice(i, 1);
-                    }
-                }
-
-                fireworksRaf = requestAnimationFrame(animate);
-            }
-
-            animate();
-
-            setTimeout(() => {
-                cancelAnimationFrame(fireworksRaf);
-                fireworksCanvas.style.display = 'none';
-            }, 3000);
-        }
-
-        // Connect 4 Heart
-        function startConnectHeart() {
-            const ctx = connectCanvas.getContext('2d');
-            connectCanvas.style.display = 'block';
-            
-            let cols = 7;
-            let rows = 6;
-            let slotSize = Math.min(600 / cols, 500 / rows);
-            connectCanvas.width = cols * slotSize;
-            connectCanvas.height = rows * slotSize;
-            connectCanvas.style.width = cols * slotSize + 'px';
-            connectCanvas.style.height = rows * slotSize + 'px';
-
-            // Heart pattern
-            const heartPattern = [
-                [3,0], [2,1], [4,1], [1,2], [2,2], [4,2], [5,2],
-                [1,3], [2,3], [4,3], [5,3], [2,4], [3,4], [4,4]
-            ];
-
-            // Draw grid
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.strokeStyle = '#444';
-            ctx.lineWidth = 2;
-            for (let i = 0; i <= cols; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * slotSize, 0);
-                ctx.lineTo(i * slotSize, rows * slotSize);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= rows; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * slotSize);
-                ctx.lineTo(cols * slotSize, i * slotSize);
-                ctx.stroke();
-            }
-
-            // Animate heart
-            let index = 0;
-            connectInterval = setInterval(() => {
-                if (index < heartPattern.length) {
-                    const [col, row] = heartPattern[index];
-                    drawDisc(ctx, col * slotSize + slotSize/2, row * slotSize + slotSize/2, slotSize, '#ff4d88');
-                    index++;
-                } else {
-                    clearInterval(connectInterval);
-                }
-            }, 250);
-        }
-
-        function drawDisc(ctx, x, y, size, color) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(x, y, size * 0.4, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 20;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        // Glowing Heart
-        function startGlowingHeart() {
-            const ctx = heartCanvas.getContext('2d');
-            heartCanvas.style.display = 'block';
-            heartCanvas.width = 300;
-            heartCanvas.height = 300;
-
-            let pulse = 0;
-            function animate() {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                
-                for (let i = 5; i > 0; i--) {
-                    ctx.save();
-                    ctx.shadowColor = '#ff69b4';
-                    ctx.shadowBlur = 40 + i * 15;
-                    ctx.globalAlpha = i * 0.15;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(150, 100 + Math.sin(pulse) * 3);
-                    ctx.bezierCurveTo(150, 60, 110, 40, 75, 80);
-                    ctx.bezierCurveTo(40, 120, 75, 170, 150, 150);
-                    ctx.bezierCurveTo(225, 170, 260, 120, 225, 80);
-                    ctx.bezierCurveTo(190, 40, 150, 60, 150, 100);
-                    ctx.fillStyle = '#ff69b4';
-                    ctx.fill();
-                    ctx.restore();
-                }
-                
-                pulse += 0.1;
-                heartRaf = requestAnimationFrame(animate);
-            }
-            animate();
-        }
-
-        // Screen transitions
-        function showPopup1() {
-            mainScreen.classList.remove('active');
-            popupScreen.classList.add('active');
-            popup1.classList.add('active');
-        }
-
-        function showPopup2() {
-            popup1.classList.remove('active');
-            popup2.classList.add('active');
-        }
-
-        function showLoveLetter() {
-            popupScreen.classList.remove('active');
-            loveLetterScreen.classList.add('active');
-        }
-
-        function showFinalScreen() {
-            loveLetterScreen.classList.remove('active');
-            finalScreen.classList.add('active');
-            finalScreen.style.backgroundImage = 'url(final.jpg)';
-            
-            // Cleanup
-            if (slideshowInterval) clearInterval(slideshowInterval);
-            if (connectInterval) clearInterval(connectInterval);
-            if (fireworksRaf) cancelAnimationFrame(fireworksRaf);
-            if (heartRaf) cancelAnimationFrame(heartRaf);
-        }
-
-        // Firework classes (same as before)
-        class Firework {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.vy = Math.random() * 3 + 2;
-                this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                this.particles = [];
-                this.exploded = false;
-                this.trail = [];
-            }
-
-            update() {
-                if (!this.exploded) {
-                    this.y += this.vy;
-                    this.trail.push({x: this.x, y: this.y});
-                    if (this.trail.length > 10) this.trail.shift();
-                    if (this.y >= fireworksCanvas.height * 0.7) this.explode();
-                } else {
-                    this.particles.forEach(particle => particle.update());
-                    this.particles = this.particles.filter(p => p.life > 0);
-                }
-            }
-
-            explode() {
-                this.exploded = true;
-                for (let i = 0; i < 50; i++) {
-                    this.particles.push(new Particle(this.x, this.y, this.color));
-                }
-            }
-
-            draw(ctx) {
-                this.trail.forEach((point, i) => {
-                    ctx.save();
-                    ctx.globalAlpha = i / this.trail.length;
-                    ctx.fillStyle = this.color;
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                });
-                this.particles.forEach(particle => particle.draw(ctx));
-            }
-        }
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = (Math.random() - 0.5) * 10;
-                this.vy = (Math.random() - 0.5) * 10;
-                this.alpha = 1;
-                this.life = 1;
-                this.color = color;
-                this.friction = 0.98;
-                this.gravity = 0.1;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.vy += this.gravity;
-                this.vx *= this.friction;
-                this.vy *= this.friction;
-                this.alpha -= 0.02;
-                this.life -= 0.02;
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        }
-
-        // Resize handler
-        window.addEventListener('resize', () => {
-            if (fireworksCanvas.style.display === 'block') {
-                fireworksCanvas.width = window.innerWidth;
-                fireworksCanvas.height = window.innerHeight * 0.5;
-            }
-        });
-
-        // Prevent scrolling
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-    </script>
 </body>
 </html>
-
