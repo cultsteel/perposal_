@@ -80,6 +80,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 1s ease;
+            z-index: 10;
         }
 
         .screen.active {
@@ -92,6 +93,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 20;
         }
 
         #bgSlideshow {
@@ -100,7 +102,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: 1;
         }
 
         .bg-image {
@@ -128,16 +130,19 @@
             overflow: hidden;
             white-space: nowrap;
             border-right: 3px solid #ff69b4;
+            z-index: 25;
         }
 
         .proposal-box {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(30px);
             padding: 60px 40px;
             border-radius: 30px;
             text-align: center;
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 105, 180, 0.3);
+            border: 2px solid rgba(255, 105, 180, 0.4);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            z-index: 30;
+            transition: all 0.5s ease;
         }
 
         .proposal-question {
@@ -192,7 +197,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 100;
+            z-index: 50;
         }
 
         #fireworksCanvas {
@@ -201,6 +206,7 @@
             left: 0;
             width: 100%;
             height: 50%;
+            display: none;
         }
 
         #connectCanvas {
@@ -212,12 +218,24 @@
             height: 70vmin;
             max-width: 600px;
             max-height: 500px;
+            display: none;
+        }
+
+        #heartCanvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            display: none;
         }
 
         #popupImages {
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 60;
         }
 
         .popup-img {
@@ -287,18 +305,6 @@
             font-size: clamp(28px, 6vw, 56px);
         }
 
-        .glow-heart {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            opacity: 0;
-            transition: all 2s ease;
-        }
-
-        .glow-heart.active {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
             .proposal-btns {
                 flex-direction: column;
@@ -319,7 +325,7 @@
     </div>
 
     <!-- Main Screens Container -->
-    <div id="mainContainer" style="display: none;">
+    <div id="mainContainer">
         <!-- Main Screen -->
         <div id="mainScreen" class="screen active">
             <div id="bgSlideshow">
@@ -338,13 +344,6 @@
                     <button id="noBtn" class="proposal-btn">NO</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Canvas Container for Animations -->
-        <div id="canvasContainer">
-            <canvas id="fireworksCanvas"></canvas>
-            <canvas id="connectCanvas"></canvas>
-            <canvas id="heartCanvas"></canvas>
         </div>
 
         <!-- Popup Images -->
@@ -377,12 +376,20 @@
         </div>
     </div>
 
+    <!-- Canvas Container for Animations -->
+    <div id="canvasContainer">
+        <canvas id="fireworksCanvas"></canvas>
+        <canvas id="connectCanvas"></canvas>
+        <canvas id="heartCanvas"></canvas>
+    </div>
+
     <script>
         // Global state
-        let currentScreen = 'main';
-        let slideshowIndex = 0;
-        let animationTimeline = [];
-        let isAnimating = false;
+        let slideshowInterval;
+        let fireworksRaf;
+        let connectInterval;
+        let heartRaf;
+        let isSequenceRunning = false;
 
         // DOM Elements
         const lockScreen = document.getElementById('lockScreen');
@@ -403,23 +410,23 @@
         const popup2 = document.getElementById('popup2');
         const loveLetterScreen = document.getElementById('loveLetterScreen');
         const finalScreen = document.getElementById('finalScreen');
-        const canvasContainer = document.getElementById('canvasContainer');
 
         // Lock screen functionality
-        unlockBtn.addEventListener('click', () => {
+        unlockBtn.addEventListener('click', unlockApp);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') unlockApp();
+        });
+
+        function unlockApp() {
             if (passwordInput.value === '3124') {
                 lockScreen.style.display = 'none';
-                mainContainer.style.display = 'flex';
+                mainContainer.style.display = 'block';
                 initMainScreen();
             } else {
                 alert('Wrong password ❤️');
                 passwordInput.value = '';
             }
-        });
-
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') unlockBtn.click();
-        });
+        }
 
         // Initialize main screen
         function initMainScreen() {
@@ -443,7 +450,8 @@
 
         // Background slideshow
         function startSlideshow() {
-            setInterval(() => {
+            let slideshowIndex = 0;
+            slideshowInterval = setInterval(() => {
                 bgImages[slideshowIndex].classList.remove('active');
                 slideshowIndex = (slideshowIndex + 1) % bgImages.length;
                 bgImages[slideshowIndex].classList.add('active');
@@ -461,78 +469,43 @@
         });
 
         // YES button - start cinematic sequence
-        yesBtn.addEventListener('click', () => {
+        yesBtn.addEventListener('click', startCinematicSequence);
+
+        function startCinematicSequence() {
+            if (isSequenceRunning) return;
+            isSequenceRunning = true;
+
+            console.log('Starting cinematic sequence...');
+
+            // Hide proposal box
+            proposalBox.style.transition = 'opacity 0.5s ease';
             proposalBox.style.opacity = '0';
+            
             setTimeout(() => {
                 proposalBox.style.display = 'none';
-                startCinematicSequence();
+                typingText.style.display = 'none';
+                
+                // Start fireworks
+                startFireworks();
             }, 500);
-        });
 
-        // Cinematic sequence master timeline
-        function startCinematicSequence() {
-            isAnimating = true;
-            
-            // Fireworks (0-3s)
-            fireworksCanvas.style.display = 'block';
-            initFireworks();
-            
-            setTimeout(() => {
-                // Connect board (1.5s delay)
-                connectCanvas.style.display = 'block';
-                initConnectHeart();
-            }, 1500);
-
-            setTimeout(() => {
-                // Glowing heart overlay (after connect animation ~4s total)
-                heartCanvas.style.display = 'block';
-                drawGlowingHeart();
-            }, 4500);
-
-            setTimeout(() => {
-                // Popup 1 (3.2s)
-                showScreen(popupScreen);
-                popup1.classList.add('active');
-            }, 3200);
-
-            setTimeout(() => {
-                // Hide popup1, show popup2 (5.2s)
-                popup1.classList.remove('active');
-                popup2.classList.add('active');
-            }, 5200);
-
-            setTimeout(() => {
-                // Love letter (7.2s)
-                hideScreen(popupScreen);
-                showScreen(loveLetterScreen);
-            }, 7200);
-
-            setTimeout(() => {
-                // Final screen (11.5s)
-                hideScreen(loveLetterScreen);
-                finalScreen.style.backgroundImage = 'url(final.jpg)';
-                showScreen(finalScreen);
-                canvasContainer.style.display = 'none';
-            }, 11500);
+            // Timeline
+            setTimeout(() => startConnectHeart(), 1500);
+            setTimeout(() => startGlowingHeart(), 4500);
+            setTimeout(() => showPopup1(), 3200);
+            setTimeout(() => showPopup2(), 5200);
+            setTimeout(() => showLoveLetter(), 7200);
+            setTimeout(() => showFinalScreen(), 11500);
         }
 
-        // Screen transitions
-        function showScreen(screen) {
-            screen.classList.add('active');
-        }
-
-        function hideScreen(screen) {
-            screen.classList.remove('active');
-        }
-
-        // Fireworks animation
-        function initFireworks() {
+        // Fireworks
+        function startFireworks() {
             const ctx = fireworksCanvas.getContext('2d');
             fireworksCanvas.width = window.innerWidth;
             fireworksCanvas.height = window.innerHeight * 0.5;
+            fireworksCanvas.style.display = 'block';
 
             const fireworks = [];
-            let animationId;
 
             function animate() {
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -542,28 +515,154 @@
                     fireworks.push(new Firework(ctx.canvas.width * Math.random(), 0));
                 }
 
-                fireworks.forEach((firework, i) => {
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    const firework = fireworks[i];
                     firework.update();
                     firework.draw(ctx);
-                    if (firework.particles.length === 0) {
+                    if (firework.particles.length === 0 && firework.exploded) {
                         fireworks.splice(i, 1);
                     }
-                });
-
-                if (isAnimating) {
-                    animationId = requestAnimationFrame(animate);
                 }
+
+                fireworksRaf = requestAnimationFrame(animate);
             }
 
             animate();
 
-            // Stop after 3 seconds
             setTimeout(() => {
-                cancelAnimationFrame(animationId);
+                cancelAnimationFrame(fireworksRaf);
                 fireworksCanvas.style.display = 'none';
             }, 3000);
         }
 
+        // Connect 4 Heart
+        function startConnectHeart() {
+            const ctx = connectCanvas.getContext('2d');
+            connectCanvas.style.display = 'block';
+            
+            let cols = 7;
+            let rows = 6;
+            let slotSize = Math.min(600 / cols, 500 / rows);
+            connectCanvas.width = cols * slotSize;
+            connectCanvas.height = rows * slotSize;
+            connectCanvas.style.width = cols * slotSize + 'px';
+            connectCanvas.style.height = rows * slotSize + 'px';
+
+            // Heart pattern
+            const heartPattern = [
+                [3,0], [2,1], [4,1], [1,2], [2,2], [4,2], [5,2],
+                [1,3], [2,3], [4,3], [5,3], [2,4], [3,4], [4,4]
+            ];
+
+            // Draw grid
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            for (let i = 0; i <= cols; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * slotSize, 0);
+                ctx.lineTo(i * slotSize, rows * slotSize);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= rows; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * slotSize);
+                ctx.lineTo(cols * slotSize, i * slotSize);
+                ctx.stroke();
+            }
+
+            // Animate heart
+            let index = 0;
+            connectInterval = setInterval(() => {
+                if (index < heartPattern.length) {
+                    const [col, row] = heartPattern[index];
+                    drawDisc(ctx, col * slotSize + slotSize/2, row * slotSize + slotSize/2, slotSize, '#ff4d88');
+                    index++;
+                } else {
+                    clearInterval(connectInterval);
+                }
+            }, 250);
+        }
+
+        function drawDisc(ctx, x, y, size, color) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 20;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Glowing Heart
+        function startGlowingHeart() {
+            const ctx = heartCanvas.getContext('2d');
+            heartCanvas.style.display = 'block';
+            heartCanvas.width = 300;
+            heartCanvas.height = 300;
+
+            let pulse = 0;
+            function animate() {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                
+                for (let i = 5; i > 0; i--) {
+                    ctx.save();
+                    ctx.shadowColor = '#ff69b4';
+                    ctx.shadowBlur = 40 + i * 15;
+                    ctx.globalAlpha = i * 0.15;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(150, 100 + Math.sin(pulse) * 3);
+                    ctx.bezierCurveTo(150, 60, 110, 40, 75, 80);
+                    ctx.bezierCurveTo(40, 120, 75, 170, 150, 150);
+                    ctx.bezierCurveTo(225, 170, 260, 120, 225, 80);
+                    ctx.bezierCurveTo(190, 40, 150, 60, 150, 100);
+                    ctx.fillStyle = '#ff69b4';
+                    ctx.fill();
+                    ctx.restore();
+                }
+                
+                pulse += 0.1;
+                heartRaf = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Screen transitions
+        function showPopup1() {
+            mainScreen.classList.remove('active');
+            popupScreen.classList.add('active');
+            popup1.classList.add('active');
+        }
+
+        function showPopup2() {
+            popup1.classList.remove('active');
+            popup2.classList.add('active');
+        }
+
+        function showLoveLetter() {
+            popupScreen.classList.remove('active');
+            loveLetterScreen.classList.add('active');
+        }
+
+        function showFinalScreen() {
+            loveLetterScreen.classList.remove('active');
+            finalScreen.classList.add('active');
+            finalScreen.style.backgroundImage = 'url(final.jpg)';
+            
+            // Cleanup
+            if (slideshowInterval) clearInterval(slideshowInterval);
+            if (connectInterval) clearInterval(connectInterval);
+            if (fireworksRaf) cancelAnimationFrame(fireworksRaf);
+            if (heartRaf) cancelAnimationFrame(heartRaf);
+        }
+
+        // Firework classes (same as before)
         class Firework {
             constructor(x, y) {
                 this.x = x;
@@ -580,10 +679,7 @@
                     this.y += this.vy;
                     this.trail.push({x: this.x, y: this.y});
                     if (this.trail.length > 10) this.trail.shift();
-
-                    if (this.y >= fireworksCanvas.height * 0.7) {
-                        this.explode();
-                    }
+                    if (this.y >= fireworksCanvas.height * 0.7) this.explode();
                 } else {
                     this.particles.forEach(particle => particle.update());
                     this.particles = this.particles.filter(p => p.life > 0);
@@ -593,14 +689,11 @@
             explode() {
                 this.exploded = true;
                 for (let i = 0; i < 50; i++) {
-                    this.particles.push(new Particle(
-                        this.x, this.y, this.color
-                    ));
+                    this.particles.push(new Particle(this.x, this.y, this.color));
                 }
             }
 
             draw(ctx) {
-                // Trail
                 this.trail.forEach((point, i) => {
                     ctx.save();
                     ctx.globalAlpha = i / this.trail.length;
@@ -610,8 +703,6 @@
                     ctx.fill();
                     ctx.restore();
                 });
-
-                // Particles
                 this.particles.forEach(particle => particle.draw(ctx));
             }
         }
@@ -649,109 +740,7 @@
             }
         }
 
-        // Connect 4 Heart animation
-        function initConnectHeart() {
-            const ctx = connectCanvas.getContext('2d');
-            let cols = 7;
-            let rows = 6;
-            let slotSize = Math.min(connectCanvas.width / cols, connectCanvas.height / rows);
-            let heartPositions = [];
-
-            // Heart shape coordinates (column, row) for 7x6 grid
-            const heartPattern = [
-                [3,0], [2,1], [4,1], [1,2], [2,2], [4,2], [5,2],
-                [1,3], [2,3], [4,3], [5,3], [2,4], [3,4], [4,4]
-            ];
-
-            connectCanvas.width = cols * slotSize;
-            connectCanvas.height = rows * slotSize;
-            connectCanvas.style.width = cols * slotSize + 'px';
-            connectCanvas.style.height = rows * slotSize + 'px';
-
-            // Draw empty board
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            for (let i = 0; i <= cols; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * slotSize, 0);
-                ctx.lineTo(i * slotSize, rows * slotSize);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= rows; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * slotSize);
-                ctx.lineTo(cols * slotSize, i * slotSize);
-                ctx.stroke();
-            }
-
-            // Fill heart positions gradually
-            let filled = 0;
-            const interval = setInterval(() => {
-                if (filled < heartPattern.length) {
-                    const [col, row] = heartPattern[filled];
-                    drawDisc(ctx, col * slotSize + slotSize/2, row * slotSize + slotSize/2, '#ff4d88');
-                    filled++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 250);
-
-            function drawDisc(x, y, color) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(x, y, slotSize * 0.4, 0, Math.PI * 2);
-                ctx.fillStyle = color;
-                ctx.shadowColor = color;
-                ctx.shadowBlur = 20;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-                ctx.restore();
-            }
-        }
-
-        // Glowing heart overlay
-        function drawGlowingHeart() {
-            const ctx = heartCanvas.getContext('2d');
-            heartCanvas.width = 400;
-            heartCanvas.height = 400;
-            heartCanvas.style.width = '200px';
-            heartCanvas.style.height = '200px';
-
-            let pulse = 0;
-            const animate = () => {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                
-                // Multiple glow layers
-                for (let i = 5; i > 0; i--) {
-                    ctx.save();
-                    ctx.shadowColor = '#ff69b4';
-                    ctx.shadowBlur = 50 + i * 20;
-                    ctx.globalAlpha = i * 0.1;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(200, 120 + Math.sin(pulse) * 5);
-                    ctx.bezierCurveTo(200, 80, 150, 60, 100, 100);
-                    ctx.bezierCurveTo(50, 140, 100, 200, 200, 180);
-                    ctx.bezierCurveTo(300, 200, 350, 140, 300, 100);
-                    ctx.bezierCurveTo(250, 60, 200, 80, 200, 120);
-                    ctx.fillStyle = '#ff69b4';
-                    ctx.fill();
-                    ctx.restore();
-                }
-                
-                pulse += 0.1;
-                if (isAnimating) {
-                    requestAnimationFrame(animate);
-                }
-            };
-            animate();
-        }
-
-        // Resize canvases on window resize
+        // Resize handler
         window.addEventListener('resize', () => {
             if (fireworksCanvas.style.display === 'block') {
                 fireworksCanvas.width = window.innerWidth;
