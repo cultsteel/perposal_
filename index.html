@@ -9,20 +9,41 @@
 
 <style>
 body{margin:0;font-family:'Dancing Script',cursive;background:black;color:white;overflow:hidden;text-align:center}
+
+/* LOCK SCREEN */
 #lockScreen{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
 input{padding:12px;border-radius:20px;border:none;margin-top:10px;font-size:18px}
 button{padding:12px 30px;border-radius:30px;border:none;margin-top:15px;font-size:18px;cursor:pointer}
 #mainSite{display:none}
+
+/* TYPING */
 #typing{font-size:2.8em;margin-top:28vh}
-.slideshow{position:fixed;width:100%;height:100%;top:0;left:0;z-index:-1}
-.slideshow img{position:absolute;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 2s}
+
+/* FULLSCREEN SLIDESHOW */
+.slideshow{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;overflow:hidden}
+.slideshow img{
+position:absolute;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+object-fit:cover;
+object-position:center;
+opacity:0;
+transition:opacity 2s ease-in-out;
+}
+
+/* PROPOSAL */
 #proposalBox{position:absolute;bottom:18%;width:100%}
 .yes{background:#ff4d6d;color:white}
 .no{background:white;color:#ff4d6d}
+
+/* LOVE LETTER */
 #surprise{display:none;height:100vh;justify-content:center;align-items:center;flex-direction:column;padding:20px}
+
+/* POPUPS */
 .popup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999}
 .popup img{max-width:90vw;border-radius:20px;box-shadow:0 0 30px rgba(255,0,100,0.6)}
-canvas{position:fixed;top:0;left:0;pointer-events:none}
 
 /* FINAL SCREEN */
 #finalScreen{
@@ -37,6 +58,8 @@ flex-direction:column;
 color:white;
 text-align:center;
 }
+
+canvas{position:fixed;top:0;left:0;pointer-events:none}
 </style>
 </head>
 
@@ -76,38 +99,22 @@ text-align:center;
 
 <!-- LOVE LETTER -->
 <div id="surprise">
-
 <h1>Bhakti ❤️</h1>
-
 <p style="max-width:700px;font-size:1.35em;line-height:1.7">
-
 Hey sorry for today 😔 <br><br>
-
-Me hang padlo hoto full guddi ne jeva mala bolle propose kar mhnun…  
-So me atta kartoy. 😘 <br><br>
-
-Like from being strangers → classmates → copy mates 🤭 → friends → besties → and now in a relationship…  
-It all happened suddenly and unexpectedly. But honestly, it is the <b>best thing that ever happened to me.</b> <br><br>
-
-Now that we are here, the only thing that truly matters to me is <b>keeping you happy</b>,  
-because your happiness is what makes me happiest. 😁 <br><br>
-
+Me hang padlo hoto full guddi ne jeva mala bolle propose kar mhnun… So me atta kartoy. 😘 <br><br>
+From strangers → classmates → copy mates 🤭 → friends → besties → now in a relationship…  
+Unexpected, but the best thing that happened to me. ❤️ <br><br>
+Now the only thing that matters is keeping you happy, because your happiness makes me happiest. 😁 <br><br>
 So just be happy… always… with me ❤️
-
 </p>
-
 <h1>I Love You Forever 💖</h1>
-
 </div>
 
-<!-- FINAL ETERNAL LOVE SCREEN -->
+<!-- FINAL ETERNAL SCREEN -->
 <div id="finalScreen">
-<h1 style="font-size:3em;text-shadow:0 0 20px rgba(0,0,0,0.8)">
-Bhakti ❤️ Omkar
-</h1>
-<h2 style="text-shadow:0 0 20px rgba(0,0,0,0.8)">
-Forever. Always. Eternal Love.
-</h2>
+<h1 style="font-size:3em;text-shadow:0 0 20px rgba(0,0,0,0.8)">Bhakti ❤️ Omkar</h1>
+<h2 style="text-shadow:0 0 20px rgba(0,0,0,0.8)">Forever. Always. Eternal Love.</h2>
 </div>
 
 <!-- CANVAS -->
@@ -139,7 +146,7 @@ setTimeout(type,120);
 type();
 }
 
-/* SLIDESHOW */
+/* SMOOTH SLIDESHOW */
 const slides=document.querySelectorAll(".slideshow img");
 let s=0;
 function startSlideshow(){
@@ -148,7 +155,7 @@ setInterval(()=>{
 slides[s].style.opacity=0;
 s=(s+1)%slides.length;
 slides[s].style.opacity=1;
-},3000);
+},3500);
 }
 
 /* NO BUTTON */
@@ -163,13 +170,11 @@ function sayYes(){
 document.getElementById("proposalBox").style.display="none";
 startFireworks();
 startHeartConnection();
-
 setTimeout(()=>{document.getElementById("popup1").style.display="block"},3200);
 setTimeout(()=>{
 document.getElementById("popup1").style.display="none";
 document.getElementById("popup2").style.display="block";
 },5200);
-
 setTimeout(()=>{document.getElementById("surprise").style.display="flex"},7200);
 setTimeout(()=>{document.getElementById("finalScreen").style.display="flex"},11500);
 }
@@ -200,7 +205,6 @@ heartCanvas.width=window.innerWidth;
 heartCanvas.height=window.innerHeight;
 
 function startHeartConnection(){
-
 const nodes=[
 {x:heartCanvas.width/2,y:heartCanvas.height/2-120},
 {x:heartCanvas.width/2-120,y:heartCanvas.height/2-20},
@@ -211,7 +215,6 @@ const nodes=[
 ];
 
 let step=0;
-
 const draw=setInterval(()=>{
 if(step>=nodes.length){clearInterval(draw);return;}
 
@@ -231,7 +234,6 @@ hctx.stroke();
 step++;
 },300);
 }
-
 </script>
 
 </body>
