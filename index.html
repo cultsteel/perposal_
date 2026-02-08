@@ -47,8 +47,8 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-object-fit:cover;          /* fills screen without stretching */
-object-position:center;    /* keeps subject centered */
+object-fit:cover;
+object-position:center;
 opacity:0;
 transition:opacity 2s ease-in-out;
 }
@@ -70,7 +70,7 @@ z-index:999;
 .popup img{
 max-width:90vw;
 max-height:90vh;
-object-fit:contain;  /* keeps popup image perfectly visible */
+object-fit:contain;
 border-radius:20px;
 box-shadow:0 0 30px rgba(255,0,100,0.6);
 }
@@ -98,8 +98,13 @@ flex-direction:column;
 color:white;
 }
 
-/* FIREWORKS */
-canvas{position:fixed;top:0;left:0;pointer-events:none}
+/* FIREWORKS CANVAS */
+canvas{
+position:fixed;
+top:0;
+left:0;
+pointer-events:none;
+}
 </style>
 </head>
 
@@ -156,6 +161,7 @@ So just be happy… always… with me ❤️
 <h2>Forever. Always. Eternal Love.</h2>
 </div>
 
+<!-- FIREWORKS -->
 <canvas id="fireworks"></canvas>
 
 <script>
@@ -183,7 +189,7 @@ setTimeout(type,120);
 type();
 }
 
-/* SMOOTH FULLSCREEN SLIDESHOW */
+/* SLIDESHOW */
 const slides=document.querySelectorAll(".slideshow img");
 let s=0;
 function startSlideshow(){
@@ -217,10 +223,11 @@ setTimeout(()=>{document.getElementById("surprise").style.display="flex"},6000);
 setTimeout(()=>{document.getElementById("finalScreen").style.display="flex"},10000);
 }
 
-/* FIREWORKS */
+/* FIREWORKS ONLY */
 const fw=document.getElementById("fireworks");
 const ctx=fw.getContext("2d");
-fw.width=window.innerWidth; fw.height=window.innerHeight;
+fw.width=window.innerWidth;
+fw.height=window.innerHeight;
 
 function startFireworks(){
 setInterval(()=>{
